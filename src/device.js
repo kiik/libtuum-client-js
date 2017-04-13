@@ -43,6 +43,13 @@ var Tuum = (function(nsp) {
         that.meta.protocol = true;
         that.refreshState();
       });
+
+      // Demo
+      setTimeout(function() {
+        that.emit('connect');
+        that.emit('protocol');
+        that.emit('gps', {lat: 58.389177, lng: 26.692365});
+      }, 3000);
     },
 
     getName: function() { return this.info.name; },
