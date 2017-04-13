@@ -35,8 +35,6 @@ var Tuum = (function(nsp) {
 
       if(this.ws.readyState == 1) {
         var dat = JSON.stringify(data);
-
-        console.log("send " + dat);
         this.ws.send(dat);
       } else {
         //TODO: Proper handling of this case

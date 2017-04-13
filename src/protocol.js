@@ -14,7 +14,7 @@ var Tuum = (function(nsp) {
     },
 
     refresh: function() {
-      var data = {'uri': '*'};
+      var data = {'nsp': '*'};
       var that = this;
 
       this.send(data).then(
