@@ -48,7 +48,11 @@ var Tuum = (function(nsp) {
       setTimeout(function() {
         that.emit('connect');
         that.emit('protocol');
-        that.emit('gps', {lat: 58.389177, lng: 26.692365});
+
+        that.data.gps = {lat: 58.389177, lng: 26.692365};
+        console.log(that.data);
+        that.emit('gps', that.data.gps);
+        that.emit('model-update');
       }, 3000);
     },
 
