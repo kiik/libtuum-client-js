@@ -1,6 +1,10 @@
 
 var Tuum = (function(nsp) {
 
+  var round = function(v, c) {
+    return Math.round(v * c) / c;
+  }
+
   var Device = Tuum.EventEmitter.Extend({
     init: function(info) {
       Tuum.EventEmitter.prototype.init.apply(this);
@@ -21,6 +25,7 @@ var Tuum = (function(nsp) {
         gps: { lat: null, lng: null },
         imu: { head: null, pitch: null, roll: null },
         bat: { U: null, I: null},
+        hyd: { oil: null, oil_temp: null, oil_work: null},
         ldr: { values: zArray(16), obstacles: zArray(16) },
         last_updated: 0,
       };
@@ -45,6 +50,7 @@ var Tuum = (function(nsp) {
       });
 
       // Demo
+/*
       setTimeout(function() {
         that.emit('connect');
         that.emit('protocol');
@@ -54,6 +60,7 @@ var Tuum = (function(nsp) {
         that.emit('gps', that.data.gps);
         that.emit('model-update');
       }, 3000);
+*/
     },
 
     getName: function() { return this.info.name; },
@@ -87,8 +94,22 @@ var Tuum = (function(nsp) {
       var that = this;
 
       this.comm.getGPS().then(function(data) {
-        that.data.gps.lat = data.lat;
-        that.data.gps.lng = data.lng;
+        if(data.imu) {
+          that.data.imu = {
+            'h': round(data.imu.h, 100.0),
+            'p': round(data.imu.p, 100.0),
+            'r': round(data.imu.r, 100.0)
+          }
+        }
+
+        if(data.bat)
+          that.data.bat = data.bat;
+
+        if(data.hyd)
+          that.data.hyd = data.hyd;
+
+        that.data.gps.lat = gpsFix(data.lat);
+        that.data.gps.lng = gpsFix(data.lng);
         that.emit('gps', that.data.gps);
       });
     }

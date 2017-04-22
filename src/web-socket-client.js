@@ -5,7 +5,7 @@ var Tuum = (function(nsp) {
     init: function(addr, ws_protocol_name) {
       Tuum.EventEmitter.prototype.init.apply(this);
 
-      this.ws = new WebSocket("ws://"+"localhost"+":8080/", "ws-json");
+      this.ws = new WebSocket(addr, "ws-json");
       this.packets = {};
       this.packet_id_seq = 0;
 
