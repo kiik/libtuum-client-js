@@ -78,6 +78,8 @@ var Tuum = (function(nsp) {
     getIMU: function() { return this.data.imu; },
     getBAT: function() { return this.data.bat; },
 
+    getName: function() { return this.info.name; },
+
     getCenter: function() {
       return { latitude: this.data.gps.lat, longitude: this.data.gps.lng }
     },
