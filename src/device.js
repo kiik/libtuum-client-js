@@ -28,6 +28,34 @@ var Tuum = (function(nsp) {
         hyd: { oil: null, oil_temp: null, oil_work: null},
         ldr: { values: zArray(16), obstacles: zArray(16) },
         last_updated: 0,
+
+        /*
+        org: {
+          inv: {
+            containers: 6,
+            avail_sample_n: 60,
+          },
+          storage: {
+            containers: 6,
+            samples: 16
+          },
+          sampler: {
+            extrusion: 2,
+            moisture: 24,
+            temp: 5,
+          },
+          job: {
+            name: 'Väli nr 3',
+            class: 'soil-sampler',
+            next_node: 17,
+            samples_n: 16,
+            samples_N: 78,
+            wp_n: 1,
+            wp_N: 13,
+            travel: 0.7,
+            dist: 5.1
+          }
+        }*/
       };
 
       var that = this;
