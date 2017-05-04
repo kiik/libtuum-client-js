@@ -55,13 +55,11 @@ nsp.pjs = (function(nsp) {
 
     /** Changes origin to entity center **/
     modelToAnchor: function(ctx) {
-      var c = (Tuum.pjs.toPixelView*2);
+      var dx = this.transform.getX() % Tuum.pjs.toPixelView,
+          dy = this.transform.getY() % Tuum.pjs.toPixelView;
 
-      var dx = this.transform.getX() % c,
-        dy = this.transform.getY() % c; // 22.2 / 20
-
-      ctx.p.translate(-dx, -dy);
       ctx.p.rotate(-this.transform.rot[0]);
+      ctx.p.translate(-dx, -dy);
     }
 
   });
