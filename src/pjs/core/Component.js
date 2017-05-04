@@ -7,6 +7,7 @@ nsp.pjs = (function(nsp) {
   nsp.AttributeTable = Class.Extend({
     init: function() {
       this._attrs = {};
+      this.Type = "component";
     },
     get: function(name) {
       return this._attrs[name];
@@ -14,6 +15,8 @@ nsp.pjs = (function(nsp) {
     set: function(name, val) {
       this._attrs[name] = val;
     },
+
+    getType: function() { return this.Type; },
 
     getAttributes: function() {
       return this._attrs;

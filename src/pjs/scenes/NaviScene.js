@@ -52,6 +52,7 @@ nsp.pjs = (function(nsp) {
 
       d1.transform.translate(this.toSceneCoords([300, 200]));
 
+      this.agent = d1;
       //d2.transform.translate(this.toSceneCoords([300, 200]));
     },
 
@@ -67,7 +68,9 @@ nsp.pjs = (function(nsp) {
       drone.addComponent(new nsp.MotionView());
 
       return drone;
-    }
+    },
+
+    getAgent: function() { return this.agent; }
 
   });
 

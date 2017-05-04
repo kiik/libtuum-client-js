@@ -29,6 +29,8 @@ var Tuum = (function(nsp) {
         ldr: { values: zArray(16), obstacles: zArray(16) },
         last_updated: 0,
 
+        navi: { v: 0, w: 0 },
+
         /*
         org: {
           inv: {

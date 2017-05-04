@@ -8,15 +8,21 @@ nsp.pjs = (function(nsp) {
   nsp.MotionView = nsp.Component.Extend({
     init: function() {
       nsp.Component.prototype.init.apply(this);
+      this.Type = 'MotionView';
 
-      this.v = 1;
-      this.w = 10 * (3.14 / 180);
-      this.t = 35;
+      this.v = 2;
+      this.w = 5 * (3.14 / 180);
+      this.t = 10;
       this.dt = 0;
 
       this.phist = [];
       this.phist_N = 10;  // History size
       this.phist_s = 2;   // Path step
+    },
+
+    setVelocity: function(v, w) {
+      this.v = v;
+      this.w = w;
     },
 
     processPathHistory: function(ctx) {
@@ -30,7 +36,7 @@ nsp.pjs = (function(nsp) {
       }
 
       var p = this.phist[this.phist.length - 1];
-      var d = Math.sqrt( Math.pow(p_new[0] - p[0], 2) + Math.pow(p_new[0] - p[0], 2));
+      var d = Math.sqrt( Math.pow(p_new[0] - p[0], 2) + Math.pow(p_new[1] - p[1], 2));
 
       if(d >= this.phist_s * Tuum.pjs.toPixelView) {
         this.phist.push(p_new);
@@ -72,7 +78,8 @@ nsp.pjs = (function(nsp) {
 
       var w = this.w;
 
-      var r = this.v / this.w; // Radius (m)
+      var r = this.v / (this.w != 0 ? this.w : 1); // Radius (m)
+
       var alfa = this.w * this.t;
 
       var o1, o2;
@@ -118,17 +125,22 @@ nsp.pjs = (function(nsp) {
       this.dt += ctx.dt;
 
       if(this.dt >= (1.0 / 10.0)) {
-        var dA = this.w * this.dt;
 
-        var mp = [
-          r * Math.sin(dA),
-          -r * Math.cos(dA) + r
-        ];
+        if(this.w != 0) {
+          var dA = this.w * this.dt;
 
-        var l = this.v * this.dt;
+          var mp = [
+            r * Math.sin(dA),
+            -r * Math.cos(dA) + r
+          ];
 
-        this.entity.transform.translate(Math.sqrt(Math.pow(mp[0], 2) + Math.pow(mp[1], 2)));
-        this.entity.transform.rotate(dA);
+          var d = Math.sqrt(Math.pow(mp[0], 2) + Math.pow(mp[1], 2));
+
+          this.entity.transform.rotate(dA);
+          this.entity.transform.translate(d);
+        } else {
+          this.entity.transform.translate(this.v * this.dt * Tuum.pjs.toPixelView);
+        }
 
         this.dt = 0;
       }

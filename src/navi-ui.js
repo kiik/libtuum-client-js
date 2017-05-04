@@ -39,9 +39,13 @@ var Tuum = (function(nsp) {
     process: function() {
       if(!this.running) return;
 
+      /*
       this.device.getPerceptionData().then(function(data) {
         console.log('[NSC::process]#TODO: ', data);
-      });
+      });*/
+
+      var v = this.dev.data.navi.v, w = this.dev.data.navi.w;
+      this.scene.getAgent().getComponent('MotionView').setVelocity(v, w);
     }
   });
 

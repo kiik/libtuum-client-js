@@ -21,6 +21,19 @@ nsp.pjs = (function(nsp) {
       this.components.push(c);
       c.entity = this;
     },
+    getComponent: function(type) {
+      var out = [];
+
+      for(var ix = 0; ix < this.components.length; ix++) {
+        var c = this.components[ix];
+
+        if(c.getType() == type) out.push(c);
+      }
+
+      if(out.length == 0) return null;
+      else if(out.length == 1) return out[0];
+      return out;
+    },
 
     setup: function(ctx) {
       ctx.simObject = this;
