@@ -9,11 +9,58 @@ nsp.pjs = (function(nsp) {
     init: function() {
       nsp.Component.prototype.init.apply(this);
 
-      this.v = 4;
-      this.w = 20 * (3.14 / 180);
-      this.t = 200;
+      this.v = 1;
+      this.w = 10 * (3.14 / 180);
+      this.t = 35;
       this.dt = 0;
+
+      this.phist = [];
+      this.phist_N = 10;  // History size
+      this.phist_s = 2;   // Path step
     },
+
+    processPathHistory: function(ctx) {
+      if(this.entity == null) return;
+
+      var p_new = [this.entity.transform.getX(), this.entity.transform.getY()];
+
+      if(this.phist.length == 0) {
+        this.phist.push(p_new);
+        return;
+      }
+
+      var p = this.phist[this.phist.length - 1];
+      var d = Math.sqrt( Math.pow(p_new[0] - p[0], 2) + Math.pow(p_new[0] - p[0], 2));
+
+      if(d >= this.phist_s * Tuum.pjs.toPixelView) {
+        this.phist.push(p_new);
+      }
+
+      if(this.phist.length >= this.phist_N) this.phist.shift();
+    },
+    renderPathHistory: function(ctx) {
+      if(this.entity == null) return;
+      if(this.phist.length < 2) return;
+
+      ctx.p.pushMatrix();
+      this.entity.modelToWorld(ctx);
+
+      ctx.p.noFill();
+
+      for(var ix_2 = 1, ix_1 = 0; ix_2 < this.phist.length; ix_1++, ix_2++) {
+        var p1 = this.phist[ix_1], p2 = this.phist[ix_2];
+
+        ctx.p.stroke(255, 255, 255, 120);
+        ctx.p.line(p1[0], p1[1], p2[0], p2[1]);
+
+        ctx.p.stroke(255, 255, 255, 200);
+        ctx.p.point(p1[0], p1[1]);
+        ctx.p.point(p2[0], p2[1]);
+      }
+
+      ctx.p.popMatrix();
+    },
+
     setup: function(ctx) {
 
     },
@@ -42,6 +89,9 @@ nsp.pjs = (function(nsp) {
         o1 = 1.57 - (w < 0 ? alfa : 0);
         o2 = 1.57 + (w >= 0 ? alfa : 0);
       }
+
+      this.processPathHistory(ctx);
+      this.renderPathHistory(ctx);
 
       // Draw motion prediction
       ctx.p.noFill();
