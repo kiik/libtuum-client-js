@@ -20,11 +20,7 @@ nsp.pjs = (function(nsp) {
       }
 
       ctx.p.pushMatrix();
-      var dx = this.entity.transform.getX() % toPixelView,
-          dy = this.entity.transform.getY() % toPixelView; // 22.2 / 20
-
-      ctx.p.rotate(-this.entity.transform.rot[0]);
-      ctx.p.translate(-dx, -dy);
+      this.entity.modelToAnchor(ctx);
 
       var area = 20 * toPixelView;
       var dx = area / 2, dy = area / 2;
