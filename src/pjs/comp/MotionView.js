@@ -127,8 +127,8 @@ nsp.pjs = (function(nsp) {
 
         var l = this.v * this.dt;
 
-        //this.entity.transform.x += mp[0];
-        //this.entity.transform.y += mp[1];
+        this.entity.transform.translate(Math.sqrt(Math.pow(mp[0], 2) + Math.pow(mp[1], 2)));
+        this.entity.transform.rotate(dA);
 
         this.dt = 0;
       }
