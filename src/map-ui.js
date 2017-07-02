@@ -55,6 +55,27 @@ var Tuum = (function(nsp) {
         map: this.map
       });
 
+      var localMapMarker = new google.maps.Marker({
+        position: {lat: 0, lng: 0},
+        label: 'Map#null',
+        map: this.map
+      });
+
+      var localMapBounds = Tuum.Path();
+      localMapBounds.uiBind(this.map);
+
+      var targetTrajMarker = new google.maps.Circle({
+        strokeColor: '#FF0000',
+        strokeOpacity: 0.8,
+        strokeWeight: 2,
+        fillColor: '#FF0000',
+        fillOpacity: 0.35,
+        map: map,
+        center: {lat: 0, lng: 0},
+        radius: 10
+      });
+
+
       //TODO: Optional panning
       dev.addListener('gps', function(ev, data) {
         marker.setPosition(data);
@@ -62,12 +83,37 @@ var Tuum = (function(nsp) {
         if(pan) {
           that.map.panTo(data);
           that.map.setZoom(18);
+          pan = false;
         }
 
         var len = that.selectedPath.calcDelta(data).length();
         if(len >= that.step || that.selectedPath.points.length < 2) {
           that.selectionMarker.setPosition(data);
           that.selectedPath.push(data);
+        }
+      });
+
+      dev.addListener('pose', function(ev, data) {
+
+      });
+
+      dev.addListener('local-maps', function(ev, data) {
+        if(dev.data.pose != null) {
+          for(var ix in data.maps) {
+            var m = data.maps[ix];
+
+            if(m.id == dev.data.pose.mapId) {
+              localMapMarker.setPosition({lat:m.anchor[0], lng:m.anchor[1]});
+              localMapMarker.setLabel(String.format("Map#{0}", m.id));
+
+              //targetTrajMarker.setCenter(...);
+
+              for(var i in m.gps_bounds) {
+                var p = m.gps_bounds[i];
+                localMapBounds.push({lat: p[0], lng: p[1]});
+              }
+            }
+          }
         }
       });
 

@@ -27,6 +27,8 @@ var Tuum = (function(nsp) {
         bat: { U: null, I: null},
         hyd: { oil: null, oil_temp: null, oil_work: null},
         ldr: { values: zArray(16), obstacles: zArray(16) },
+        pose: null,
+        job: null,
         last_updated: 0,
 
         navi: { v: 0, w: 0 },
@@ -125,7 +127,14 @@ var Tuum = (function(nsp) {
       if(!this.isReady()) return;
       var that = this;
 
-      this.comm.getGPS().then(function(data) {
+      this.comm.getGlobalPosition().then(function(data) {
+        if(data.res >= 0) {
+          that.data.gps.lat = data.lat; // gpsFix(data.lat);
+          that.data.gps.lng = data.lng; // gpsFix(data.lng);
+          that.emit('gps', that.data.gps);
+        }
+
+        /*
         if(data.imu) {
           that.data.imu = {
             'h': round(data.imu.h, 100.0),
@@ -143,7 +152,46 @@ var Tuum = (function(nsp) {
         that.data.gps.lat = gpsFix(data.lat);
         that.data.gps.lng = gpsFix(data.lng);
         that.emit('gps', that.data.gps);
+        **/
       });
+
+      this.comm.getLocalPose().then(function(data) {
+        that.data.pose = data;
+        that.emit('pose', that.data.pose);
+      });
+
+      this.comm.getLocalMaps().then(function(data) {
+        that.data.maps = data;
+        that.emit('local-maps', that.data.maps);
+      });
+
+      if(this.data.job == null) {
+        this.comm.createJob('AgronautSoilSampler', 'Test job #001').then(function(data) {
+          if(data.res <= 0) { // If implementation not available
+            console.log(data);
+          } else {
+            console.log(data);
+            that.data.job = data.job;
+            that.comm.configureJob(data.job.id, {data: '#TODO: geojson'}).then(function(data) {
+              if(data.res <= 0) { // If job not ready
+                console.log(data);
+              } else {
+                that.comm.startJob(data.job.id).then(function(data) {
+                  if(data.res <= 0) { // If encountered error
+                    console.log(data);
+                  } else {
+                    that.data.job = data;
+                  }
+                });
+              }
+            });
+          }
+        });
+      } else {
+        this.comm.getJobStatus().then(function(data) {
+          console.log(data);
+        });
+      }
     }
   });
 

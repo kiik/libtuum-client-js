@@ -51,9 +51,11 @@ var Tuum = (function(nsp) {
               for(var ix in rsc.args) {
                 var spec = rsc.args[ix];
                 if(spec.t == 0)
-                data[spec.k] = parseInt(arguments[ix]);
+                  data[spec.k] = parseInt(arguments[ix]);
                 else if(spec.t == 1)
-                data[spec.k] = String(arguments[ix]);
+                  data[spec.k] = String(arguments[ix]);
+                else if(spec.t == 2)
+                  data[spec.k] = arguments[ix];
               }
 
               return that.send(data);

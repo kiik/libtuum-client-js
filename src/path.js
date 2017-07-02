@@ -87,6 +87,10 @@ var Tuum = (function(nsp) {
       if(this.points.length >= 2)
         this.poly.setPath(this.points);
     },
+    clear: function() {
+      this.points = [];
+      this.rect = [0, 0, 0, 0];
+    },
 
     calcDelta: function(p) {
       if(this.points.length == 0) return new Vec2D(0, 0);
