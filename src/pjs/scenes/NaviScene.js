@@ -40,23 +40,29 @@ nsp.pjs = (function(nsp) {
   nsp.NaviScene = nsp.Scene.Extend({
     init: function(canvas) {
       nsp.Scene.prototype.init.apply(this, [canvas]);
+
+      this.warnMsg = null;
     },
 
     loadScene: function(ctx) {
+      this.ctx = ctx;
       console.log('Loading NaviScene...');
       //var entity = this.createObject();
       //entity.addComponent(new DemoComponent());
 
-      var d1 = this.createAgent(ctx);
+      var d1 = this.createAgent();
       //var d2 = this.createAgent(ctx);
 
       d1.transform.translate(this.toSceneCoords([300, 200]));
 
       this.agent = d1;
+      this.console = this.createConsole();
+
       //d2.transform.translate(this.toSceneCoords([300, 200]));
     },
 
-    createAgent: function(ctx) {
+    createAgent: function() {
+      var ctx = this.ctx;
       var drone = this.createObject();
 
       drone.addComponent(new nsp.GridWidget());
@@ -70,7 +76,33 @@ nsp.pjs = (function(nsp) {
       return drone;
     },
 
-    getAgent: function() { return this.agent; }
+    getAgent: function() { return this.agent; },
+
+    createConsole: function() {
+      var ctx = this.ctx;
+
+      this._consoleEntity = this.createObject();
+
+      var console = new nsp.Console();
+      this._consoleEntity.addComponent(console);
+
+      return console;
+    },
+
+    setWarning: function(msg) {
+      if(msg == this.warnMsg) return;
+
+      dt = 5000;
+      this.warnMsg = msg;
+
+      if(msg == null) return;
+      this.console.newPopup(msg, dt);
+
+      var that = this;
+      setTimeout(function() {
+        that.warnMsg = null;
+      }, dt);
+    }
 
   });
 
