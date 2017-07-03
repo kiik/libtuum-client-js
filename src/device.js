@@ -20,6 +20,9 @@ var Tuum = (function(nsp) {
         protocol: false
       }
 
+      // Job spec data
+      this.Job = Tuum.FindExtension('TuumJobMod')(this);
+
       // TODO: Get model spec from device
       this.data = {
         gps: { lat: null, lng: null },
@@ -164,34 +167,6 @@ var Tuum = (function(nsp) {
         that.data.maps = data;
         that.emit('local-maps', that.data.maps);
       });
-
-      if(this.data.job == null) {
-        this.comm.createJob('AgronautSoilSampler', 'Test job #001').then(function(data) {
-          if(data.res <= 0) { // If implementation not available
-            console.log(data);
-          } else {
-            console.log(data);
-            that.data.job = data.job;
-            that.comm.configureJob(data.job.id, {data: '#TODO: geojson'}).then(function(data) {
-              if(data.res <= 0) { // If job not ready
-                console.log(data);
-              } else {
-                that.comm.startJob(data.job.id).then(function(data) {
-                  if(data.res <= 0) { // If encountered error
-                    console.log(data);
-                  } else {
-                    that.data.job = data;
-                  }
-                });
-              }
-            });
-          }
-        });
-      } else {
-        this.comm.getJobStatus().then(function(data) {
-          console.log(data);
-        });
-      }
     }
   });
 
