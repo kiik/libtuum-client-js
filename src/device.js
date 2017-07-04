@@ -20,9 +20,6 @@ var Tuum = (function(nsp) {
         protocol: false
       }
 
-      // Job spec data
-      this.Job = Tuum.FindExtension('TuumJobMod')(this);
-
       // TODO: Get model spec from device
       this.data = {
         gps: { lat: null, lng: null },
@@ -35,35 +32,9 @@ var Tuum = (function(nsp) {
         last_updated: 0,
 
         navi: { v: 0, w: 0 },
-
-        /*
-        org: {
-          inv: {
-            containers: 6,
-            avail_sample_n: 60,
-          },
-          storage: {
-            containers: 6,
-            samples: 16
-          },
-          sampler: {
-            extrusion: 2,
-            moisture: 24,
-            temp: 5,
-          },
-          job: {
-            name: 'Väli nr 3',
-            class: 'soil-sampler',
-            next_node: 17,
-            samples_n: 16,
-            samples_N: 78,
-            wp_n: 1,
-            wp_N: 13,
-            travel: 0.7,
-            dist: 5.1
-          }
-        }*/
       };
+
+      this._when = {};
 
       var that = this;
 
@@ -82,20 +53,27 @@ var Tuum = (function(nsp) {
         that.comm = comm;
         that.meta.protocol = true;
         that.refreshState();
+
+        if(that.isReady()) that.emit('ready');
       });
 
-      // Demo
-/*
-      setTimeout(function() {
-        that.emit('connect');
-        that.emit('protocol');
+      this.addHook('ready', function(ev, cb) {
+        if(this.isReady()) cb(ev, this);
+      });
 
-        that.data.gps = {lat: 58.389177, lng: 26.692365};
-        console.log(that.data);
-        that.emit('gps', that.data.gps);
-        that.emit('model-update');
-      }, 3000);
-*/
+      // Job spec data
+      this.Job = Tuum.FindExtension('TuumJobMod')(this);
+    },
+    when: function(ev, cb) {
+      var fn = null;
+      if(ev in this._when) fn = this._when[ev];
+
+      fn.apply(this, [ev, cb]); // If condition met run callback immediately
+      var that = this;
+      Tuum.EventEmitter.prototype.on.apply(this, [ev, function() {console.log("CALL", ev); fn.apply(that, [ev, cb]);}]);
+    },
+    addHook: function(label, cb) {
+      this._when[label] = cb;
     },
 
     getName: function() { return this.info.name; },
@@ -125,6 +103,7 @@ var Tuum = (function(nsp) {
     disable: function() {
       this.ready = false;
     },
+
 
     telemetryProcess: function() {
       if(!this.isReady()) return;
