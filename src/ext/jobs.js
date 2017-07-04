@@ -5,7 +5,22 @@ var Tuum = (function(nsp) {
     init: function(dev) {
       this._dev = dev;
 
+      this.activeJob = null;
+
       this.Classes = [{clsName:'AgronautSoilSampler'}];
+      this.jobData = {};
+
+      this.m_refreshActiveJobFlag = true;
+      this.m_loadJobDataFlag = false;
+
+      this._dev.addHook('active-job', function(ev, cb) {
+        if(this.Job.activeJob != null) cb(ev, this.Job.activeJob);
+      });
+
+      var that = this;
+      this._proc = setInterval(function() {
+        that.process();
+      }, 1000);
     },
 
     getDemoData: function() {
@@ -33,9 +48,13 @@ var Tuum = (function(nsp) {
     },
 
     getConf: function(jobId) {
-      var that = this._dev;
+      var that = this;
+      var dev = this._dev;
       return new Promise(function(fulfill, reject) {
-        that.comm.getJobConf(jobId).then(function(data) {
+        dev.comm.getJobConf(jobId).then(function(data) {
+          that.jobData[jobId] = data; //TODO: Cleanup
+
+          dev.emit('job-conf', data);
           fulfill(data);
         }, reject);
       });
@@ -54,19 +73,6 @@ var Tuum = (function(nsp) {
       });
     },
 
-    getStatus: function(jobId) {
-      var that = this._dev;
-      return new Promise(function(fulfill, reject) {
-        that.comm.getJobStatus().then(function(data) {
-          var buf = {};
-          buf.job = data.job;
-          buf.job.status = data.st;
-          buf.job.ctx = data.ctx;
-          fulfill(buf);
-        }, reject);
-      });
-    },
-
     begin: function(jobId) {
       var that = this._dev;
       return new Promise(function(fulfill, reject) {
@@ -76,6 +82,21 @@ var Tuum = (function(nsp) {
           } else {
             fulfill(data);
           }
+        }, reject);
+      });
+    },
+
+    getStatus: function() {
+      var dev = this._dev;
+      var that = this;
+      return new Promise(function(fulfill, reject) {
+        dev.comm.jobStatus().then(function(data) {
+          var buf = {};
+          buf.job = data.job;
+          buf.job.status = data.st;
+          buf.job.ctx = data.ctx;
+
+          fulfill(buf);
         }, reject);
       });
     },
@@ -99,6 +120,51 @@ var Tuum = (function(nsp) {
       }
 
       if(job_name == null) return;
+    },
+
+    process: function() {
+      var that = this;
+
+      if(this.activeJob != null) {
+        if(this.m_refreshActiveJobFlag) {
+          this.m_refreshActiveJobFlag = false;
+          //this.getStatus().finally(function() {that.m_refreshActiveJobFlag = true;console.log(that.activeJob)});
+        }
+      }
+    },
+
+
+    loadJobData: function(jobId) {
+      var dev = this._dev;
+      var that = this;
+      return new Promise(function(fulfill, reject) {
+        dev.Job.getConf(jobId).then(function(data) {
+          if(data.res <= 0) return reject(data);
+          if(!data.job) return reject(data);
+
+          that.jobData[jobId] = data.job;
+          fulfill(data.job);
+        }, reject);
+      });
+    },
+    loadActiveJob: function() {
+      var dev = this._dev;
+      var that = this;
+      return new Promise(function(fulfill, reject) {
+        that.getStatus().then(function(res) {
+          that.loadJobData(res.job.id).then(function(data) {
+            that.activeJob = that.jobData[res.job.id];
+            fulfill(data);
+            dev.emit('active-job', data);
+          }, reject);
+        }, reject);
+      });
+    },
+
+    projectToMap: function(job, tuumMap) {
+      tuumMap.$.polygon('agro-field', job.conf.area);
+      tuumMap.$.nodes('agro-soil-samples', job.conf.targets);
+      tuumMap.$.path('agro-path', job.conf.targets);
     }
 
   });
