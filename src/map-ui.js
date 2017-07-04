@@ -33,7 +33,6 @@ var Tuum = (function(nsp) {
             });
 
             if(res == 0) {
-              console.log(d);
               if(d.lodAnchor) {
                 that._lod[key] = new google.maps.Marker({
                   position: d.lodAnchor,
@@ -55,7 +54,6 @@ var Tuum = (function(nsp) {
             });
 
             if(res == 0) {
-              console.log(that._lod, key)
               if(key in that._lod) {
                 var e = that._lod[key];
                 e.setMap(null);

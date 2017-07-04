@@ -70,7 +70,7 @@ var Tuum = (function(nsp) {
 
       fn.apply(this, [ev, cb]); // If condition met run callback immediately
       var that = this;
-      Tuum.EventEmitter.prototype.on.apply(this, [ev, function() {console.log("CALL", ev); fn.apply(that, [ev, cb]);}]);
+      Tuum.EventEmitter.prototype.on.apply(this, [ev, function() {fn.apply(that, [ev, cb]);}]);
     },
     addHook: function(label, cb) {
       this._when[label] = cb;
