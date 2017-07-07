@@ -48,8 +48,11 @@ var Tuum = (function(nsp) {
     },
 
     getConf: function(jobId) {
+      if(typeof(jobId) == undefined) return;
+
       var that = this;
       var dev = this._dev;
+
       return new Promise(function(fulfill, reject) {
         dev.comm.getJobConf(jobId).then(function(data) {
           that.jobData[jobId] = data; //TODO: Cleanup
@@ -91,12 +94,13 @@ var Tuum = (function(nsp) {
       var that = this;
       return new Promise(function(fulfill, reject) {
         dev.comm.jobStatus().then(function(data) {
-          var buf = {};
-          buf.job = data.job;
-          buf.job.status = data.st;
-          buf.job.ctx = data.ctx;
+          if(!data.job) return fulfill({res: 0, job: null});
 
-          fulfill(buf);
+          dev.Job.activeJob = data.job;
+          dev.Job.activeCtx = data.ctx;
+
+          dev.emit('active-job-ctx', data.ctx);
+          fulfill(data);
         }, reject);
       });
     },
@@ -151,11 +155,14 @@ var Tuum = (function(nsp) {
       var dev = this._dev;
       var that = this;
       return new Promise(function(fulfill, reject) {
-        that.getStatus().then(function(res) {
-          that.loadJobData(res.job.id).then(function(data) {
-            that.activeJob = that.jobData[res.job.id];
-            fulfill(data);
+        that.getStatus().then(function(data) {
+          if(data.res == 0)
+            return fulfill({res: 0, job: null});
+
+          that.loadJobData(data.job.id).then(function(job) {
+            that.activeJob = job;
             dev.emit('active-job', data);
+            fulfill(data);
           }, reject);
         }, reject);
       });
@@ -165,6 +172,20 @@ var Tuum = (function(nsp) {
       tuumMap.$.polygon('agro-field', job.conf.area);
       tuumMap.$.nodes('agro-soil-samples', job.conf.targets);
       tuumMap.$.path('agro-path', job.conf.targets);
+    },
+    projectTarget: function(jobId, tuumMap) {
+      var that = this;
+      var pId = this.activeCtx.pSeq;
+
+      if(jobId in this.jobData) {
+        var t = this.jobData[jobId].conf.targets[pId];
+        var p = [this._dev.data.gps, {lat: t[0], lng: t[1]}];
+        tuumMap.$.drawTargetVector('nav-target#'+jobId, p);
+      } else {
+        this.loadJobData(jobId).then(function() {
+          that.projectTarget(jobId, tuumMap);
+        });
+      }
     }
 
   });

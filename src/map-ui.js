@@ -145,6 +145,37 @@ var Tuum = (function(nsp) {
       };
 
     },
+    drawTargetVector: function(label, data) {
+      this._clear(label, data);
+
+      if(!data) return;
+
+      var p0 = data[0],
+          p1 = data[1];
+
+      this._ctx[label] = [
+        new google.maps.Marker({
+          position: p1,
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 1,
+            fillColor: 'white',
+            fillOpacity: 0.0,
+            anchor: new google.maps.Point(0, 15)
+          },
+          label: label,
+          map: this._ui.map,
+        }),
+        new google.maps.Polyline({
+          path: [p0, p1],
+          geodesic: true,
+          strokeColor: '#FF00FF',
+          strokeOpacity: 1.0,
+          strokeWeight: 1,
+          map: this._ui.map
+        })
+      ];
+    }
   });
 
   var MapUI = Class.Extend({

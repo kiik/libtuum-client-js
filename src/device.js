@@ -61,16 +61,36 @@ var Tuum = (function(nsp) {
         if(this.isReady()) cb(ev, this);
       });
 
+      this.addHook('active-job', function(ev, cb) {
+        if(this.isReady()) cb(ev, this);
+      });
+
+      this.addHook('active-job-ctx', function(ev, cb) {
+        if(this.isReady()) cb(ev, this);
+      });
+
+      //      Tuum.EventEmitter.prototype.on.apply(this, [ ev, function(fn){return (function(fn) {fn.apply(that, [ev, cb]);}); } ]);
+
+
       // Job spec data
       this.Job = Tuum.FindExtension('TuumJobMod')(this);
     },
     when: function(ev, cb) {
       var fn = null;
-      if(ev in this._when) fn = this._when[ev];
+      if(ev in this._when) {
+        fn = this._when[ev];
+      } else return;
 
-      fn.apply(this, [ev, cb]); // If condition met run callback immediately
       var that = this;
-      Tuum.EventEmitter.prototype.on.apply(this, [ev, function() {fn.apply(that, [ev, cb]);}]);
+
+      var middleware = (function(fn) {
+        var x = fn;
+        return function(x) {
+          fn.apply(that, [ev, cb]);
+        }
+      })(fn);
+
+      Tuum.EventEmitter.prototype.on.apply(this, [ev, middleware]);
     },
     addHook: function(label, cb) {
       this._when[label] = cb;
@@ -110,11 +130,7 @@ var Tuum = (function(nsp) {
       var that = this;
 
       this.comm.getGlobalPosition().then(function(data) {
-        if(data.res >= 0) {
-          that.data.gps.lat = data.lat; // gpsFix(data.lat);
-          that.data.gps.lng = data.lng; // gpsFix(data.lng);
-          that.emit('gps', that.data.gps);
-        }
+
 
         /*
         if(data.imu) {
@@ -137,9 +153,15 @@ var Tuum = (function(nsp) {
         **/
       });
 
-      this.comm.getLocalPose().then(function(data) {
-        that.data.pose = data;
-        that.emit('pose', that.data.pose);
+      this.comm.getPose().then(function(data) {
+        if(data.res >= 0) {
+          that.data.gps = data.gpos; // gpsFix(data.lat); gpsFix(data.lng);
+          that.emit('gps', that.data.gps);
+
+          that.data.pose = data.pose;
+          that.emit('pose', that.data.pose);
+        }
+
       });
 
       this.comm.getLocalMaps().then(function(data) {

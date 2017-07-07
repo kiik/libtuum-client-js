@@ -35,21 +35,23 @@ var Tuum = (function(nsp) {
 
         for(var ix in p.rscs) {
           var rsc = p.rscs[ix];
+          var fn = formatEndpointName(rsc.urn);
 
-          comm[formatEndpointName(rsc.urn)] = (function(nsp, rsc) {
+          comm[fn] = (function(nsp, rsc) {
             return function() {
               var data = {
                 nsp: nsp,
                 uri: rsc.uri,
               }
 
-              if(arguments.length != rsc.args.length) {
-                console.log(String.format("Error: Invalid arg count '{0} != {1}' ( '{2}' )", arguments.length, rsc.args.length, data.uri));
-                return;
-              }
+              if(arguments.length != rsc.args.length)
+                throw new Error((String.format("libtuum::{0} - invalid argument count '{1} != {2}' ( '{3}' )", formatEndpointName(rsc.urn), arguments.length, rsc.args.length, data.uri)));
 
               for(var ix in rsc.args) {
                 var spec = rsc.args[ix];
+
+                if(!arguments[ix]) throw new Error(String.format("libtuum::{0} - missing '{1}' argument (n={2})", formatEndpointName(rsc.urn), spec.k, ix));
+
                 if(spec.t == 0)
                   data[spec.k] = parseInt(arguments[ix]);
                 else if(spec.t == 1)
