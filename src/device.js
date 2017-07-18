@@ -36,6 +36,8 @@ var Tuum = (function(nsp) {
 
       this._when = {};
 
+      this.pathTickCooldown = false;
+
       var that = this;
 
       this.wsc.on('connect', function() {
@@ -124,6 +126,9 @@ var Tuum = (function(nsp) {
       this.ready = false;
     },
 
+    updatePath: function(data) {
+      console.log('Device::updatePath - #TODO: ', data);
+    },
 
     telemetryProcess: function() {
       if(!this.isReady()) return;
@@ -168,6 +173,18 @@ var Tuum = (function(nsp) {
         that.data.maps = data;
         that.emit('local-maps', that.data.maps);
       });
+
+      if(!this.pathTickCooldown) {
+        setTimeout(function() {
+          that.comm.getNavPath().then(function(data) {
+            if(data != that.data.path)
+              that.updatePath(data);
+
+            that.pathTickCooldown = false;
+          });
+        }, 5000);
+        this.pathTickCooldown = true;
+      }
     }
   });
 
