@@ -5,27 +5,28 @@ var Tuum = (function(nsp) {
     init: function(wsc) {
       Tuum.EventEmitter.prototype.init.apply(this);
 
-      this.srv = wsc;
       return this;
     },
+    setup: function() {
 
-    send: function(data) {
-      return this.srv.send(data); // Returns promise which resolves to server response
     },
 
-    refresh: function() {
-      var data = {'nsp': '*'};
+    protocolRefresh: function() {
       var that = this;
 
-      this.send(data).then(
-        function(res) {
-          var comm = that.parseProtocols(res.protocols);
+      const data = {
+        'nsp': '*'
+      };
+
+      this.send(data).then(function(res) {
+          if(!res) throw new Error('[Tuum::ProtocolResolver]Undefined protocol response!');
+          var comm = that.protocolParse(res.protocols);
           that.emit('protocol', comm);
         }
       );
     },
 
-    parseProtocols: function(protocols) {
+    protocolParse: function(protocols) {
       var that = this;
       var comm = {}; // Communication api object
 
@@ -71,6 +72,8 @@ var Tuum = (function(nsp) {
       return comm;
     }
   });
+
+  nsp.ProtocolResolver = Protocol;
 
   nsp.protocolFactory = function(wsc) {
     return new Protocol(wsc);

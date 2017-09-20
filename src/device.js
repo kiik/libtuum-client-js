@@ -5,14 +5,14 @@ var Tuum = (function(nsp) {
     return Math.round(v * c) / c;
   }
 
-  var Device = Tuum.EventEmitter.Extend({
-    init: function(info) {
-      Tuum.EventEmitter.prototype.init.apply(this);
+  var Device = Tuum.WSComm.Extend({
+    init: function(params) {
+      Tuum.WSComm.prototype.init.apply(this, [{
+        host: 'ws://localhost:8079',
+        protocol: 'ws-json',
+      }]);
 
-      this.info = info;
-      this.addr = String.format('ws://{0}:8080', info.local_ip || 'localhost');
-      this.wsc = Tuum.wsClientFactory(this.addr, 'ws-json');
-      this.protocol = Tuum.protocolFactory(this.wsc);
+      this.params = params;
 
       this.ready = false;
       this.meta = {
@@ -38,20 +38,26 @@ var Tuum = (function(nsp) {
 
       this.pathTickCooldown = false;
 
+      this.setup();
+    },
+    setup: function() {
+      Tuum.WSComm.prototype.setup.apply(this);
+
       var that = this;
 
-      this.wsc.on('connect', function() {
+      this.on('connected', function() {
+        console.log('CONNECT');
         that.meta.connected = true;
         that.refreshState();
-        if(!that.meta.protocol) that.protocol.refresh();
+        if(!that.meta.protocol) that.protocolRefresh();
       });
 
-      this.wsc.on('disconnect', function() {
+      this.on('disconnected', function() {
         that.meta.connected = false;
         that.refreshState();
       });
 
-      this.protocol.on('protocol', function(ev, comm) {
+      this.on('protocol', function(ev, comm) {
         that.comm = comm;
         that.meta.protocol = true;
         that.refreshState();
@@ -70,9 +76,6 @@ var Tuum = (function(nsp) {
       this.addHook('active-job-ctx', function(ev, cb) {
         if(this.isReady()) cb(ev, this);
       });
-
-      //      Tuum.EventEmitter.prototype.on.apply(this, [ ev, function(fn){return (function(fn) {fn.apply(that, [ev, cb]);}); } ]);
-
 
       // Job spec data
       this.Job = Tuum.FindExtension('TuumJobMod')(this);
@@ -98,7 +101,7 @@ var Tuum = (function(nsp) {
       this._when[label] = cb;
     },
 
-    getName: function() { return this.info.name; },
+    getName: function() { return this.params.name; },
 
     refreshState: function() {
       if(this.isReady()) this.ready = true;
@@ -113,7 +116,7 @@ var Tuum = (function(nsp) {
     getIMU: function() { return this.data.imu; },
     getBAT: function() { return this.data.bat; },
 
-    getName: function() { return this.info.name; },
+    getName: function() { return this.params.name; },
 
     getCenter: function() {
       return { latitude: this.data.gps.lat, longitude: this.data.gps.lng }
