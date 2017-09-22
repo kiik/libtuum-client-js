@@ -5,6 +5,7 @@ var Tuum = (function(nsp) {
 /** :namespace Tuum.pjs: **/
 nsp.pjs = (function(nsp) {
 
+  /*
   function bezier(var t, var p0, var p1, var p2, var p3)
   {
     float u = 1 – t;
@@ -19,7 +20,7 @@ nsp.pjs = (function(nsp) {
     p += ttt * p3;        //fourth term
 
     return p;
-  }
+  }*/
 
   nsp.TestComponent = nsp.Component.Extend({
     init: function() {
