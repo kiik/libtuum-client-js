@@ -14,6 +14,7 @@ nsp.pjs = (function(nsp) {
       this.w = 5 * (3.14 / 180);
       this.t = 10;
       this.dt = 0;
+      this.target = null;
 
       this.phist = [];
       this.phist_N = 10;  // History size
@@ -23,6 +24,9 @@ nsp.pjs = (function(nsp) {
     setVelocity: function(v, w) {
       this.v = v;
       this.w = w;
+    },
+    setTarget: function(p) {
+      this.target = p;
     },
 
     processPathHistory: function(ctx) {
@@ -143,6 +147,13 @@ nsp.pjs = (function(nsp) {
         }
 
         this.dt = 0;
+      }
+
+      // Draw Target vector
+      if(this.target) {
+        ctx.p.stroke(200, 200, 0);
+        var t = [this.target[0] + pos[0], this.target[1] + pos[1]];
+        ctx.p.line(0, 0, t[0], t[1]);
       }
     }
   });

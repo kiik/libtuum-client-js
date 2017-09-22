@@ -53,10 +53,12 @@ nsp.pjs = (function(nsp) {
       var d1 = this.createAgent();
       //var d2 = this.createAgent(ctx);
 
-      d1.transform.translate(this.toSceneCoords([300, 200]));
-
       this.agent = d1;
       this.console = this.createConsole();
+
+      var o = this.createEntity();
+      o.transform.translate(100);
+      this.entities.push(o);
 
       //d2.transform.translate(this.toSceneCoords([300, 200]));
     },
@@ -72,8 +74,17 @@ nsp.pjs = (function(nsp) {
       drone.addComponent(rend);
 
       drone.addComponent(new nsp.MotionView());
+      drone.addComponent(new nsp.Label2D("d#1"));
 
       return drone;
+    },
+    createEntity: function() {
+      var ctx = this.ctx;
+      var obj = this.createObject();
+
+      obj.addComponent(new nsp.TestComponent());
+
+      return obj;
     },
 
     getAgent: function() { return this.agent; },

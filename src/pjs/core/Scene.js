@@ -129,7 +129,7 @@ nsp.pjs = (function(nsp) {
       });
     },
 
-    process: function(p) {
+    process: function() {
       var p = this.pJS;
 
       var ctx = {

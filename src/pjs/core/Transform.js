@@ -66,6 +66,9 @@ nsp.pjs = (function(nsp) {
       if(val.constructor === Array)
         this.rot[0] += val[0];
       else this.rot[0] += val;
+    },
+    setRotation: function(val) {
+      this.rot[0] = val;
     }
   });
 

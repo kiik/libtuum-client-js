@@ -130,7 +130,7 @@ var Tuum = (function(nsp) {
     },
 
     updatePath: function(data) {
-      console.log('Device::updatePath - #TODO: ', data);
+      this.data.path = data.path;
     },
 
     telemetryProcess: function() {

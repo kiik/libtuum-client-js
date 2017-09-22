@@ -73,6 +73,15 @@ nsp.pjs = (function(nsp) {
 
       ctx.p.rotate(-this.transform.rot[0]);
       ctx.p.translate(-dx, -dy);
+    },
+
+    modelToWorld_rotation: function(ctx) {
+      ctx.p.rotate(-this.transform.rot[0]);
+    },
+
+    _textFix: function(ctx) {
+      this.modelToWorld_rotation(ctx);
+      ctx.p.scale(1, -1);
     }
 
   });
