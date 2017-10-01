@@ -7,6 +7,7 @@ var Tuum = (function(nsp) {
 
   var Device = Tuum.WSComm.Extend({
     init: function(params) {
+      Tuum.EventEmitter.prototype.init.apply(this);
       Tuum.WSComm.prototype.init.apply(this, [{
         host: 'ws://localhost:8079',
         protocol: 'ws-json',
@@ -46,7 +47,6 @@ var Tuum = (function(nsp) {
       var that = this;
 
       this.on('connected', function() {
-        console.log('CONNECT');
         that.meta.connected = true;
         that.refreshState();
         if(!that.meta.protocol) that.protocolRefresh();
@@ -92,13 +92,21 @@ var Tuum = (function(nsp) {
         var x = fn;
         return function(x) {
           fn.apply(that, [ev, cb]);
+
         }
       })(fn);
 
-      Tuum.EventEmitter.prototype.on.apply(this, [ev, middleware]);
+      var res =  Tuum.EventEmitter.prototype.on.apply(this, [ev, middleware]);
+
+      if(ev == 'ready' && this.isReady()) middleware();
+
+      return res;
     },
     addHook: function(label, cb) {
       this._when[label] = cb;
+    },
+    unwhen: function(ev, ref) {
+      Tuum.EventEmitter.prototype.removeListener.apply(this, [ev, ref]);
     },
 
     getName: function() { return this.params.name; },
@@ -175,6 +183,14 @@ var Tuum = (function(nsp) {
       this.comm.getLocalMaps().then(function(data) {
         that.data.maps = data;
         that.emit('local-maps', that.data.maps);
+      });
+
+      this.comm.getDriveFeedback().then(function(data) {
+        that.data.odometry = data;
+      });
+
+      this.comm.getControlMode().then(function(data) {
+        that.data.ctlm = data.ctlm;
       });
 
       if(!this.pathTickCooldown) {

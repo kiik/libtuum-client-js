@@ -26,7 +26,7 @@ var Tuum = (function(nsp) {
     getDemoData: function() {
       return new Promise(function(fulfill, reject) {
         $.ajax({
-          url: '/assets/agronaut-test.json'
+          url: '/assets/agronaut-test.4.json'
         }).done(function(data) {
           fulfill(data);
           //that.createDemoJob(data);

@@ -177,7 +177,7 @@ var Tuum = (function(nsp) {
 
       var that = this;
 
-      console.log('WS connection open.', arguments);
+      console.log('[Tuum.WSC::onOpen]Connected.', arguments);
       this._ready_flag = true;
       this._conn_flag = false;
       this.readyState = this.ReadyState.Ready;

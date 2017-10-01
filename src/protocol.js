@@ -30,6 +30,7 @@ var Tuum = (function(nsp) {
       var that = this;
       var comm = {}; // Communication api object
 
+      console.log(protocols);
       for(var p_ix in protocols) {
         var p = protocols[p_ix];
         var nsp = p.uri;
@@ -51,7 +52,7 @@ var Tuum = (function(nsp) {
               for(var ix in rsc.args) {
                 var spec = rsc.args[ix];
 
-                if(!arguments[ix]) throw new Error(String.format("libtuum::{0} - missing '{1}' argument (n={2})", formatEndpointName(rsc.urn), spec.k, ix));
+                if(typeof arguments[ix] === 'undefined') throw new Error(String.format("libtuum::{0} - missing '{1}' argument! ( n={2}, arguments={3} )", formatEndpointName(rsc.urn), spec.k, ix, JSON.stringify(arguments)));
 
                 if(spec.t == 0)
                   data[spec.k] = parseInt(arguments[ix]);

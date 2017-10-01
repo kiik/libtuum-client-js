@@ -306,7 +306,8 @@ var Tuum = (function(nsp) {
 
     var gmap = new google.maps.Map(map_elem, {
       zoom: 8,
-      center: {lat: 58.756972, lng: 25.638104}
+      center: {lat: 58.756972, lng: 25.638104},
+      mapTypeId: 'hybrid',
     });
 
     return new MapUI(gmap);
