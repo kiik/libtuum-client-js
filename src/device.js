@@ -1,4 +1,6 @@
 
+console.log('libtuum-client-js/device.js version 0.0.1-al.0');
+
 var Tuum = (function(nsp) {
 
   var round = function(v, c) {
@@ -78,7 +80,8 @@ var Tuum = (function(nsp) {
       });
 
       // Job spec data
-      this.Job = Tuum.FindExtension('TuumJobMod')(this);
+      if(Tuum.hasOwnProperty('FindExtension'))
+        this.Job = Tuum.FindExtension('TuumJobMod')(this);
     },
     when: function(ev, cb) {
       var fn = null;
@@ -145,7 +148,7 @@ var Tuum = (function(nsp) {
       if(!this.isReady()) return;
       var that = this;
 
-      this.comm.getGlobalPosition().then(function(data) {
+      //this.comm.getGlobalPosition().then(function(data) {
 
 
         /*
@@ -167,8 +170,9 @@ var Tuum = (function(nsp) {
         that.data.gps.lng = gpsFix(data.lng);
         that.emit('gps', that.data.gps);
         **/
-      });
+      //});
 
+      /*
       this.comm.getPose().then(function(data) {
         if(data.res >= 0) {
           that.data.gps = data.gpos; // gpsFix(data.lat); gpsFix(data.lng);
@@ -203,7 +207,7 @@ var Tuum = (function(nsp) {
           });
         }, 5000);
         this.pathTickCooldown = true;
-      }
+      }*/
     }
   });
 

@@ -1,0 +1,9 @@
+{
+  "name": "libtuum-client-js",
+  "js": [
+    "src/std/core.js",
+    "src/std/wsc.js",
+    "src/comm.js",
+    "src/device.js"
+  ]
+}
