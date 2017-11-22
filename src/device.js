@@ -8,10 +8,14 @@ var Tuum = (function(nsp) {
   var Device = Tuum.WSComm.Extend({
     init: function(params) {
       Tuum.EventEmitter.prototype.init.apply(this);
-      Tuum.WSComm.prototype.init.apply(this, [{
-        host: 'ws://localhost:8079',
+
+      var netParams = {
+        host: params.localIP ? String.format('ws://{0}:8079', params.localIP) : 'localhost',
         protocol: 'ws-json',
-      }]);
+      }
+console.log('netparams', netParams);
+
+      Tuum.WSComm.prototype.init.apply(this, [netParams]);
 
       this.params = params;
 
